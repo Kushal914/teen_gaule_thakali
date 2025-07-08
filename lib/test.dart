@@ -1,33 +1,108 @@
-// only for test
+import 'package:flutter/material.dart';
+import 'package:teen_gaule_thakali/data/dict_data.dart';
+import 'package:teen_gaule_thakali/views/test_view.dart';
+import 'package:teen_gaule_thakali/views/word_detail.dart';
 
-import 'package:teen_gaule_thakali/services/e_museum_services.dart';
-
-void main() async {
-  // Call async function to fetch museum data
-  await _museumGetData();
+class Dictionary extends StatefulWidget {
+  @override
+  _DictionaryState createState() => _DictionaryState();
 }
 
-Future<void> _museumGetData() async {
-  final result = await EMuseumServices().eMuseumGetData();
+class _DictionaryState extends State<Dictionary> {
+  String _searchQuery = '';
+  List<String> _filteredWords = [];
 
-  switch (result['status']) {
-    case 'success':
-      final museums = result['data'] as List;
-      print('Fetched ${museums.length} museum records:');
-      for (var museum in museums) {
-        print(museum.toString()); // Assuming EMuseum has a toString method
+  @override
+  void initState() {
+    super.initState();
+    _filteredWords = dictData.keys.toList();
+  }
+
+  void _filterWords(String query) {
+    setState(() {
+      _searchQuery = query;
+      if (query.isEmpty) {
+        _filteredWords = dictData.keys.toList();
+      } else {
+        _filteredWords = dictData.keys
+            .where((word) => word.toLowerCase().startsWith(query.toLowerCase()))
+            .toList();
       }
-      break;
-    case 'no_data':
-      print('No data found: ${result['message']}');
-      break;
-    case 'error':
-      print('Error: ${result['message']}');
-      break;
-    case 'exception':
-      print('Exception: ${result['message']}');
-      break;
-    default:
-      print('Unknown status: ${result['status']}');
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('नेपाली-थकाली शब्दकोश'),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              onChanged: _filterWords,
+              decoration: InputDecoration(
+                hintText: 'Search',
+                prefixIcon: Icon(Icons.search),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: Icon(Icons.clear),
+                        onPressed: () {
+                          _filterWords('');
+                        },
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'नतिजा:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _filteredWords.length,
+              itemBuilder: (context, index) {
+                final word = _filteredWords[index];
+                return ListTile(
+                  title: Text(
+                    word,
+                    style: TextStyle(color: Colors.black, fontSize: 16),
+                  ),
+                  trailing: Icon(Icons.arrow_forward_ios),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TestView(word: word),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

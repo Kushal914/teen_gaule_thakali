@@ -77,7 +77,7 @@ class FirstPage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: ((context) => TestView())),
+                    builder: ((context) => Dictionary())),
                 );
               },
               child: Text('Calendar'),

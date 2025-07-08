@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:teen_gaule_thakali/data/dict_data.dart';
+import 'package:teen_gaule_thakali/dict_functions.dart';
 import 'package:teen_gaule_thakali/views/word_detail.dart';
 
 class Dictionary extends StatefulWidget {
@@ -7,23 +8,45 @@ class Dictionary extends StatefulWidget {
   _DictionaryState createState() => _DictionaryState();
 }
 
-class _DictionaryState extends State<Dictionary> {
+class _DictionaryState extends State<Dictionary> with SingleTickerProviderStateMixin {
   String _searchQuery = '';
   List<String> _filteredWords = [];
+  late TabController _tabController;
+  late Map<String, dynamic> _currentDictData;
+  final dictNepaliToThakali = sortDict(dictData);
+  final dictThakaliToNepali = sortDict(revertDict(dictData));
+  
 
   @override
   void initState() {
     super.initState();
-    _filteredWords = dictData.keys.toList();
+    _tabController = TabController(length: 2, vsync: this);
+    _currentDictData = dictData;
+    _filteredWords = _currentDictData.keys.toList();
+    _tabController.addListener(_handleTabSelection);
+  }
+
+  void _handleTabSelection() {
+    setState(() {
+      _currentDictData = _tabController.index == 0 ? dictNepaliToThakali : dictThakaliToNepali;
+      _searchQuery = '';
+      _filteredWords = _currentDictData.keys.toList();
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   void _filterWords(String query) {
     setState(() {
       _searchQuery = query;
       if (query.isEmpty) {
-        _filteredWords = dictData.keys.toList();
+        _filteredWords = _currentDictData.keys.toList();
       } else {
-        _filteredWords = dictData.keys
+        _filteredWords = _currentDictData.keys
             .where((word) => word.toLowerCase().startsWith(query.toLowerCase()))
             .toList();
       }
@@ -42,6 +65,22 @@ class _DictionaryState extends State<Dictionary> {
           onPressed: () {
             Navigator.pop(context);
           },
+        ),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: [
+            Tab(child: Text(
+                'नेपाली-थकाली',
+                style: TextStyle(fontSize: 18),
+              ),),
+            Tab(child: Text(
+                'थकाली-नेपाली',
+                style: TextStyle(fontSize: 18),
+              ),),
+          ],
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white70,
+          indicatorColor: Colors.white,
         ),
       ),
       body: Column(
@@ -82,6 +121,8 @@ class _DictionaryState extends State<Dictionary> {
               itemCount: _filteredWords.length,
               itemBuilder: (context, index) {
                 final word = _filteredWords[index];
+                final meaning = _currentDictData[word];
+                final displayText = meaning is List ? meaning.join(', ') : meaning;
                 return ListTile(
                   title: Text(
                     word,
@@ -92,7 +133,10 @@ class _DictionaryState extends State<Dictionary> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => WordDetail(word: word),
+                        builder: (context) => WordDetail(
+                          word: word,
+                          dictData: _currentDictData,
+                        ),
                       ),
                     );
                   },
@@ -105,5 +149,3 @@ class _DictionaryState extends State<Dictionary> {
     );
   }
 }
-
-// Detail page to show the word's meaning

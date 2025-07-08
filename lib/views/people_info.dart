@@ -32,7 +32,7 @@ class _PeopleInfoState extends State<PeopleInfo> {List<Person> items = [];
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.10.107/teen-gaule-thakali/actions/people_actions.php'),
+        Uri.parse('http://192.168.10.109/teen-gaule-thakali/actions/people_actions.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {'action': 'PEOPLE_GET_DATA'},
       );

@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:teen_gaule_thakali/data/dict_data.dart';
 
 class WordDetail extends StatelessWidget {
   final String word;
+  final Map<String, dynamic> dictData;
 
-  WordDetail({required this.word});
+  const WordDetail({required this.word, required this.dictData, super.key});
 
   @override
   Widget build(BuildContext context) {
+    final meaning = dictData[word];
+    final meanings = meaning is List<String>
+        ? meaning
+        : meaning is String
+            ? [meaning, '']
+            : ['Meaning not found', 'Meaning not found'];
+
     return Scaffold(
       appBar: AppBar(
         title: Text('शब्दको अर्थ'),
@@ -33,9 +40,20 @@ class WordDetail extends StatelessWidget {
             ),
             SizedBox(height: 10),
             Text(
-              dictData[word] ?? 'Meaning not found',
-              style: TextStyle(fontSize: 16),
+              meanings[0],
+              style: const TextStyle(fontSize: 16),
             ),
+            if (meanings[1].isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Divider(
+                color: Colors.black,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                meanings[1],
+                style: const TextStyle(fontSize: 16),
+              ),
+            ],
           ],
         ),
       ),

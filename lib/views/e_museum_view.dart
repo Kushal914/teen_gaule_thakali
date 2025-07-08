@@ -32,7 +32,7 @@ class _EMuseumViewState extends State<EMuseumView> {List<EMuseumItem> items = []
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.10.107/teen-gaule-thakali/actions/e_museum_actions.php'),
+        Uri.parse('http://kushalthapa.thulo.eu.org/teen-gaule-thakali/actions/e_museum_actions.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {'action': 'E_MUSEUM_GET_DATA'},
       );
